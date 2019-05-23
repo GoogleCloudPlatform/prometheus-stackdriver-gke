@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-deployment
+  namespace: prometheus
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus-server
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.6.1
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
+        - name: sidecar
+          image: gcr.io/stackdriver-prometheus/stackdriver-prometheus-sidecar:${SIDECAR_IMAGE_TAG}
+          imagePullPolicy: Always
+          args:
+            - --stackdriver.project-id=${GCP_PROJECT}
+            - --prometheus.wal-directory=${DATA_DIR}/wal
+            - --stackdriver.kubernetes.location=${GCP_REGION}
+            - --stackdriver.kubernetes.cluster-name=${KUBE_CLUSTER}
+            #- \"--stackdriver.generic.location=${GCP_REGION}\"
+            #- \"--stackdriver.generic.namespace=${KUBE_CLUSTER}\"
+          ports:
+            - name: sidecar
+              containerPort: 9091
+          volumeMounts:
+            - name: ${DATA_VOLUME}
+              mountPath: ${DATA_DIR}
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            defaultMode: 420
+            name: prometheus-server-conf
+
+        - name: prometheus-storage-volume
+          emptyDir: {}
+
