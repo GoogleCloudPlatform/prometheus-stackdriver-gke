@@ -12,13 +12,16 @@
 #See the License for the specific language governing permissions and
 #limitations under the License.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
-  namespace: prometheus
+  namespace: ${KUBE_NAMESPACE}
 spec:
   replicas: 1
+  selector:
+      matchLabels:
+        app: prometheus-server
   template:
     metadata:
       labels:
@@ -35,8 +38,8 @@ spec:
           volumeMounts:
             - name: prometheus-config-volume
               mountPath: /etc/prometheus/
-            - name: prometheus-storage-volume
-              mountPath: /prometheus/
+            - name: ${DATA_VOLUME}
+              mountPath: ${DATA_DIR}
         - name: sidecar
           image: gcr.io/stackdriver-prometheus/stackdriver-prometheus-sidecar:${SIDECAR_IMAGE_TAG}
           imagePullPolicy: Always
@@ -59,6 +62,5 @@ spec:
             defaultMode: 420
             name: prometheus-server-conf
 
-        - name: prometheus-storage-volume
+        - name: ${DATA_VOLUME}
           emptyDir: {}
-
