@@ -12,13 +12,18 @@
 #See the License for the specific language governing permissions and
 #limitations under the License.
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
   namespace: prometheus
+  labels:
+    app: prometheus-server
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-server
   template:
     metadata:
       labels:
@@ -26,7 +31,7 @@ spec:
     spec:
       containers:
         - name: prometheus
-          image: prom/prometheus:v2.6.1
+          image: prom/prometheus:${PROMETHEUS_VER_TAG}
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.path=/prometheus/"
@@ -43,9 +48,9 @@ spec:
           args:
             - --stackdriver.project-id=${GCP_PROJECT}
             - --prometheus.wal-directory=${DATA_DIR}/wal
-            - --stackdriver.kubernetes.location=${GCP_REGION}
+            - --stackdriver.kubernetes.location=${GCP_LOCATION}
             - --stackdriver.kubernetes.cluster-name=${KUBE_CLUSTER}
-            #- --stackdriver.generic.location=${GCP_REGION}
+            #- --stackdriver.generic.location=${GCP_LOCATION}
             #- --stackdriver.generic.namespace=${KUBE_CLUSTER}
           ports:
             - name: sidecar
