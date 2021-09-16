@@ -16,7 +16,7 @@ envsubst < gke-prometheus-deployment.yaml | kubectl apply -f -
 Additional iam policy bindings may be required (from [hixichen](https://github.com/hixichen)'s comment on [Issue 142](https://github.com/Stackdriver/stackdriver-prometheus-sidecar/issues/142) of the [stackdriver-prometheus-sidecar](https://github.com/Stackdriver/stackdriver-prometheus-sidecar) repository):
 
 ```sh
-xport GCP_PROJECT=my-project
+export GCP_PROJECT=my-project
 export GCP_SA=prometheus
 export K8S_SA=prometheus
 export K8S_NS=prometheus
