@@ -18,7 +18,7 @@ metadata:
   name: prometheus-server-conf
   labels:
     name: prometheus-server-conf
-  namespace: prometheus
+  namespace: ${KUBE_NAMESPACE}
 data:
   prometheus.rules: |-
     groups:

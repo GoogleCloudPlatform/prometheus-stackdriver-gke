@@ -16,7 +16,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
-  namespace: prometheus
+  namespace: ${KUBE_NAMESPACE}
   labels:
     app: prometheus-server
 spec:
